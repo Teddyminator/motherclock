@@ -11,6 +11,18 @@
 #include "task_scheduler.h"
 #include "wifi_module.h"
 
+#include "FFWLeo.h"
+#include "teddyminator.h"
+
+
+//TFT Setup
+#include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
+#include <SPI.h>
+TFT_eSPI tft = TFT_eSPI(); 
+
+
+
+
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 3600;
@@ -167,11 +179,20 @@ void sync_time() {
 
 void setup()
 {
+    tft.init();
+    tft.setRotation(0);
+    tft.fillScreen(TFT_WHITE);
+    tft.setSwapBytes(true);
+    tft.pushImage(0, 0, teddyminator_width, teddyminator_height, teddyminator);
+            
     Serial.begin(115200);
     delay(5000);
+    tft.fillScreen(TFT_BLACK);
     pinMode(INA, OUTPUT);
-
     pinMode(INB, OUTPUT);
+    
+    
+
     if(!mount_or_format_spiffs()) {
         Serial.println("Failed to format SPIFFS.");
         delay(0xFFFFFFFF);
@@ -219,7 +240,44 @@ void setup()
             pulse_and_save();
         }
     }, 100, 0);
+
+
+    task_scheduler.scheduleWithFixedDelay("draw_tft", [](){
+            
+            
+            struct tm timeinfo;
+            getLocalTime(&timeinfo);
+            char timeHour[6];
+            strftime(timeHour, 6, "%H:%M", &timeinfo);
+           
+            tft.setTextColor(TFT_RED, TFT_BLACK);
+            tft.drawString(timeHour,50,10,7);
+            tft.setSwapBytes(true);
+            tft.pushImage(95, 90, logo_width, logo_height, logo);
+            
+        
+
+
+
+
+
+        }, 2000, 500);
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void loop()
 {
