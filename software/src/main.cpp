@@ -177,6 +177,8 @@ void sync_time() {
     }
 }
 
+bool first_draw = true;
+
 void setup()
 {
     tft.init();
@@ -186,8 +188,7 @@ void setup()
     tft.pushImage(0, 0, teddyminator_width, teddyminator_height, teddyminator);
             
     Serial.begin(115200);
-    delay(5000);
-    tft.fillScreen(TFT_BLACK);
+
     pinMode(INA, OUTPUT);
     pinMode(INB, OUTPUT);
     
@@ -243,10 +244,13 @@ void setup()
 
 
     task_scheduler.scheduleWithFixedDelay("draw_tft", [](){
-            
-            
             struct tm timeinfo;
-            getLocalTime(&timeinfo);
+            if(!getLocalTime(&timeinfo))
+                return;
+            if(first_draw) {
+                tft.fillScreen(TFT_BLACK);
+                first_draw = false;
+            }
             char timeHour[6];
             strftime(timeHour, 6, "%H:%M", &timeinfo);
            
@@ -254,13 +258,6 @@ void setup()
             tft.drawString(timeHour,50,10,7);
             tft.setSwapBytes(true);
             tft.pushImage(95, 90, logo_width, logo_height, logo);
-            
-        
-
-
-
-
-
         }, 2000, 500);
 
 
