@@ -91,6 +91,7 @@ uint16_t last_minute = 0;
 bool last_pulse = true;
 
 uint16_t target = 0;
+bool target_valid = false;
 
 const int INA = 12;
 const int INB = 13;
@@ -227,11 +228,12 @@ void setup()
             Serial.println();
         }
         target = new_target;
+        target_valid = true;
         //target = 3*60+16;
     }, 100, 100);
 
     task_scheduler.scheduleWithFixedDelay("pulse_clock", [](){
-        if (!timesync_successful_once || target == last_minute) {
+        if (!timesync_successful_once || !target_valid || target == last_minute) {
             delay(100);
             return;
         }
