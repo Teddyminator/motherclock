@@ -227,6 +227,7 @@ void setup()
             Serial.println();
         }
         target = new_target;
+        //target = 3*60+16;
     }, 100, 100);
 
     task_scheduler.scheduleWithFixedDelay("pulse_clock", [](){
@@ -245,7 +246,7 @@ void setup()
 
     task_scheduler.scheduleWithFixedDelay("draw_tft", [](){
             struct tm timeinfo;
-            if(!getLocalTime(&timeinfo))
+            if(!timesync_successful_once)
                 return;
             if(first_draw) {
                 tft.fillScreen(TFT_BLACK);
