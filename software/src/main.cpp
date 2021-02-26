@@ -245,9 +245,11 @@ void setup()
 
 
     task_scheduler.scheduleWithFixedDelay("draw_tft", [](){
-            struct tm timeinfo;
             if(!timesync_successful_once)
                 return;
+            struct tm timeinfo;
+            getLocalTime(&timeinfo);
+
             if(first_draw) {
                 tft.fillScreen(TFT_BLACK);
                 first_draw = false;
